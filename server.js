@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 require("dotenv").config()
 const dns = require('node:dns')
 const authRouter = require("./routes/auth.route")
+const cors = require('cors')
 
 const PORT_KEY = process.env.PORT
 const DB_URL = process.env.MONGO_URL
@@ -11,9 +12,9 @@ const DB_URL = process.env.MONGO_URL
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 dns.setServers(['1.1.1.1', '8.8.8.8'])
+app.use(cors())
 
 app.use('/', authRouter)
-
 
 mongoose.connect(DB_URL)
     .then((response) => console.log('Mongo connected!'))

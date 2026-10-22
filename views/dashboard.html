@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+
+<body>
+    <h1>Dashboard</h1>
+    <p id="msg">Welcome...</p>
+    <p>Overview, Charts, Products...</p>
+
+    <script>
+        const loadDashboard = async () => {
+            try {
+                const token = localStorage.getItem('token')
+                const response = await fetch("http://localhost:4600/dashboard", {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+
+                if (!response) {
+                    window.location.href = 'login.html'
+                }
+                const data = await response.json()
+                console.log(data);
+
+                if (data.name === "TokenExpiredError") {
+                    window.location.href = 'login.html'
+                    console.log("Session expired, please login again");
+                }
+                const message = document.getElementById("msg")
+                message.innerHTML = `Welcome, ${data.payload.firstName}`
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        loadDashboard()
+    </script>
+</body>
+
+</html>

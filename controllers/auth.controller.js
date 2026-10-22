@@ -11,9 +11,9 @@ const register = async (req, res) => {
             password: hashedPassword
         })
         user.save()
-        return res.status(200).send(user)
+        return res.status(200).json({user: user, message: "Proceed to login"})
     } catch (err) {
-        console.log('Couldnt register')
+        console.log("Couldn't register")
         console.log(err);
     }
 }
@@ -24,18 +24,38 @@ const login = async (req, res) => {
         if (user) {
             const passwordCheck = await bcrypt.compare(req.body.password, user.password)
             if (passwordCheck) {
-                res.status(200).send('Logged In')
+                const payload = {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email
+                }
+
+                const token = await jwt.sign({ payload }, process.env.JWT_SECRET, { expiresIn: '120s' })
+                res.status(200).json({ message: 'logged in', token: token })
             } else {
-                res.status(400).send({ res: 'Incorrect password' })
+                res.status(400).json({ error: 'Incorrect password' })
             }
         } else {
-            res.status(404).send('Incorrect email')
+            res.status(400).json({ error: 'Incorrect email' })
         }
     } catch (err) {
+        'Incorrect email'
         console.log(err);
         res.send(err)
         res.status(400).send('Incorrect info')
     }
 }
 
-module.exports = { register, login }
+const dashboard = async (req, res) => {
+    try {
+        const token = req.headers.authorization.split(" ")[1]
+        const verifyToken = await jwt.verify(token, process.env.JWT_SECRET)
+        res.status(200).send(verifyToken)
+    } catch (err) {
+        res.send(err)
+    }
+
+}
+
+
+module.exports = { register, login, dashboard }
