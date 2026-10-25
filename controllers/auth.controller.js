@@ -11,7 +11,7 @@ const register = async (req, res) => {
             password: hashedPassword
         })
         user.save()
-        return res.status(200).json({user: user, message: "Proceed to login"})
+        return res.status(200).json({ user: user, message: "Proceed to login" })
     } catch (err) {
         console.log("Couldn't register")
         console.log(err);
@@ -30,7 +30,7 @@ const login = async (req, res) => {
                     email: user.email
                 }
 
-                const token = await jwt.sign({ payload }, process.env.JWT_SECRET, { expiresIn: '120s' })
+                const token = await jwt.sign({ payload }, process.env.JWT_SECRET, { expiresIn: '60s' })
                 res.status(200).json({ message: 'logged in', token: token })
             } else {
                 res.status(400).json({ error: 'Incorrect password' })
@@ -46,16 +46,15 @@ const login = async (req, res) => {
     }
 }
 
-const dashboard = async (req, res) => {
+const dashboard = (req, res) => { }
+
+const validateToken = async (req, res) => {
     try {
         const token = req.headers.authorization.split(" ")[1]
-        const verifyToken = await jwt.verify(token, process.env.JWT_SECRET)
-        res.status(200).send(verifyToken)
+        const verifiedToken = await jwt.verify(token, process.env.JWT_SECRET)
+        res.status(200).send(verifiedToken)
     } catch (err) {
-        res.send(err)
+        return res.status(401).json({ error: err })
     }
-
 }
-
-
-module.exports = { register, login, dashboard }
+module.exports = { register, login, dashboard, validateToken }

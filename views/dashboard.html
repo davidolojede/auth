@@ -22,8 +22,8 @@
                         Authorization: `Bearer ${token}`
                     }
                 })
-
-                if (!response) {
+                
+                if (!response.ok) {
                     window.location.href = 'login.html'
                 }
                 const data = await response.json()
