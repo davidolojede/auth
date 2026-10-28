@@ -1,6 +1,7 @@
 const regModel = require("../models/user.model")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const sendVerificationEmail = require("../services/verificationmail.services")
 
 
 const register = async (req, res) => {
@@ -10,11 +11,23 @@ const register = async (req, res) => {
             ...req.body,
             password: hashedPassword
         })
-        user.save()
+        await user.save()
+        try {
+            await sendVerificationEmail({
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email
+            })
+        } catch (err) {
+            console.error("User created but verification email failed", err)
+            return res.status(502).json({
+                error: "Account created, but the verification email could not be sent"
+            })
+        }
         return res.status(200).json({ user: user, message: "Proceed to login" })
     } catch (err) {
-        console.log("Couldn't register")
-        console.log(err);
+        console.error("Couldn't register", err)
+        return res.status(500).json({ error: "Couldn't register" })
     }
 }
 
@@ -46,7 +59,9 @@ const login = async (req, res) => {
     }
 }
 
-const dashboard = (req, res) => { }
+const dashboard = (req, res) => {
+
+}
 
 const validateToken = async (req, res) => {
     try {
