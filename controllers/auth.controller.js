@@ -43,7 +43,7 @@ const login = async (req, res) => {
                     email: user.email
                 }
 
-                const token = await jwt.sign({ payload }, process.env.JWT_SECRET, { expiresIn: '60s' })
+                const token = await jwt.sign({ payload }, process.env.JWT_SECRET, { expiresIn: '10000s' })
                 res.status(200).json({ message: 'logged in', token: token })
             } else {
                 res.status(400).json({ error: 'Incorrect password' })
